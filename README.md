@@ -4,20 +4,22 @@ Personal Project to learn how AI agents work. This project is being made followi
 
 ## Current architecture of the project
 
+```text
 root/
 ├── calculator/
-│ ├── main.py
-│ ├── tests.py
-│ └── pkg/
-│ ├── calculator.py
-│ └── render.py
+│   ├── main.py
+│   ├── tests.py
+│   └── pkg/
+│       ├── calculator.py
+│       └── render.py
 ├── functions/
-│ └── get_files_info.py
+│   └── get_files_info.py
 ├── main.py
 ├── pyproject.toml
 ├── README.md
 ├── test_get_files_info.py
 └── uv.lock
+```
 
 ## Tools
 
