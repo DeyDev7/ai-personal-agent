@@ -25,5 +25,5 @@ root/
 
 Project's been built using:
 
-[OpenAI SDK Toolkit](https://github.com/openai/openai-agents-python)
-[OpenRouter free API KEY](https://openrouter.ai/)
+- [OpenAI SDK Toolkit](https://github.com/openai/openai-agents-python)
+- [OpenRouter free API KEY](https://openrouter.ai/)
