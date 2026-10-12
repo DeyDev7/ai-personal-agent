@@ -20,9 +20,11 @@ def main() -> None:
             to_print = format_json_output(expression, result)
             print(to_print)
         else:
-            print("Error: Expression is empty or contains only whitespace.")
+            print("Error: Expression is empty or contains only whitespace.", file=sys.stderr)
+            raise SystemExit(1)
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error: {e}", file=sys.stderr)
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

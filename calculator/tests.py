@@ -42,6 +42,14 @@ class TestCalculator(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.calculator.evaluate("+ 3")
 
+    def test_adjacent_operands(self) -> None:
+        with self.assertRaises(ValueError):
+            self.calculator.evaluate("3 4 +")
+
+    def test_adjacent_operators(self) -> None:
+        with self.assertRaises(ValueError):
+            self.calculator.evaluate("3 + * 4")
+
 
 if __name__ == "__main__":
     unittest.main()

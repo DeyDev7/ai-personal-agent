@@ -25,9 +25,13 @@ class Calculator:
     def _evaluate_infix(self, tokens: list[str]) -> float:
         values: list[float] = []
         operators: list[str] = []
+        expect_operand = True
 
         for token in tokens:
             if token in self.operators:
+                if expect_operand:
+                    raise ValueError("invalid expression")
+
                 while (
                     operators
                     and operators[-1] in self.operators
@@ -35,11 +39,20 @@ class Calculator:
                 ):
                     self._apply_operator(operators, values)
                 operators.append(token)
+                expect_operand = True
             else:
+                if not expect_operand:
+                    raise ValueError("invalid expression")
+
                 try:
                     values.append(float(token))
                 except ValueError:
                     raise ValueError(f"invalid token: {token}")
+
+                expect_operand = False
+
+        if expect_operand:
+            raise ValueError("invalid expression")
 
         while operators:
             self._apply_operator(operators, values)

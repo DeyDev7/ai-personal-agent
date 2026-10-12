@@ -1,7 +1,11 @@
 import json
+import math
 
 
 def format_json_output(expression: str, result: float, indent: int = 2) -> str:
+    if not math.isfinite(result):
+        raise ValueError("result is not finite")
+
     if isinstance(result, float) and result.is_integer():
         result_to_dump = int(result)
     else:
@@ -11,4 +15,4 @@ def format_json_output(expression: str, result: float, indent: int = 2) -> str:
         "expression": expression,
         "result": result_to_dump,
     }
-    return json.dumps(output_data, indent=indent)
+    return json.dumps(output_data, indent=indent, allow_nan=False)
