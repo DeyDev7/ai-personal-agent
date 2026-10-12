@@ -23,4 +23,7 @@ root/
 
 ## Tools
 
-Project's been built using the OpenAI SDK Toolkit and OpenRouter free API KEY. You can provide your own API KEY if wanted.
+Project's been built using:
+
+[OpenAI SDK Toolkit](https://github.com/openai/openai-agents-python)
+[OpenRouter free API KEY](https://openrouter.ai/)
