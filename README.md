@@ -13,6 +13,7 @@ root/
 │       ├── calculator.py
 │       └── render.py
 ├── functions/
+│   ├── get_file_content.py
 │   └── get_files_info.py
 ├── main.py
 ├── pyproject.toml
