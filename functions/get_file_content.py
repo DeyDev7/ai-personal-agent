@@ -1,6 +1,9 @@
 import os
 
 
+from config import MAX_CHARS
+
+
 def get_file_content(working_directory: str, file_path: str) -> str:
     try:
         absolute_path_of_curr_dir = os.path.realpath(working_directory)
@@ -22,6 +25,13 @@ def get_file_content(working_directory: str, file_path: str) -> str:
             return f'Error: "{file_path}" is not a file'
 
         with open(target_file, encoding="utf-8") as file:
-            return file.read()
+            content = file.read(MAX_CHARS + 1)
+
+        if len(content) > MAX_CHARS:
+            content = content[:MAX_CHARS]
+            content += f'[...File "{file_path}" truncated at {MAX_CHARS} characters]'
+
+        return content
+
     except Exception as err:
         return f"Error: {err}"
