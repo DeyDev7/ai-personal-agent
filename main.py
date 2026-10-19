@@ -2,8 +2,14 @@ import argparse
 import os
 
 
+# - Must import llm_guard to avoid jailbraking | it's a must. AGENT could be jailbroken with roleplaying and encoded msg
+# from llm_guard.input_scanners import PromptInjection, TokenLimit 
+# from llm_guard.output_scanners import Sensitive, Toxicity
 from dotenv import load_dotenv
 from openai import OpenAI
+
+
+from prompts import system_prompt
 
 
 # Defaults from OpenAI
@@ -18,11 +24,13 @@ def get_api_key():
 
 def generate_response_from_model(client, user_prompt):
     messages: list = [
-        {"role": "user", "content": user_prompt}
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt},
     ]
     response = client.chat.completions.create(
         model=MODEL,
         messages=messages,
+        temperature=0,
     )
 
     if response.usage is None:
