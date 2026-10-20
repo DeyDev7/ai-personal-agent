@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 
 
@@ -10,6 +11,7 @@ from openai import OpenAI
 
 
 from prompts import system_prompt
+from call_function import available_schemas
 
 
 # Defaults from OpenAI
@@ -30,14 +32,20 @@ def generate_response_from_model(client, user_prompt):
     response = client.chat.completions.create(
         model=MODEL,
         messages=messages,
+        tools=available_schemas,
         temperature=0,
     )
+
+    assistant_message = response.choices[0].message
+    for tool_call in assistant_message.tool_calls or []:
+        function_args = json.loads(tool_call.function.arguments or "{}")
+        print(f"Calling function: {tool_call.function.name}({function_args})")
 
     if response.usage is None:
         raise RuntimeError("Failed API request | None value for response.usage")
 
     return (
-        response.choices[0].message.content,
+        assistant_message.content,
         response.usage.prompt_tokens,
         response.usage.completion_tokens,
     )

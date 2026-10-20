@@ -66,3 +66,26 @@ def write_to_file(working_directory: str, file_path: str, content: str) -> str:
             os.close(file_fd)
         if directory_fd is not None:
             os.close(directory_fd)
+
+
+schema_write_to_file = {
+    "type": "function",
+    "function": {
+        "name": "write_to_file",
+        "description": "Writes content to a file at a path relative to the working directory.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path to the file to write, relative to the working directory.",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Content to write to the file.",
+                },
+            },
+            "required": ["file_path", "content"],
+        },
+    },
+}
