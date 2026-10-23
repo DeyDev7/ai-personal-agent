@@ -1,10 +1,13 @@
 import argparse
 import os
+import sys
 
 
-# - Must import llm_guard to avoid jailbraking | it's a must. AGENT could be jailbroken with roleplaying and encoded msg
+# Must import llm_guard to avoid jailbraking
+# it's a must. AGENT could be jailbroken with roleplaying and encoded msg
 # from llm_guard.input_scanners import PromptInjection, TokenLimit 
 # from llm_guard.output_scanners import Sensitive, Toxicity
+
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -28,29 +31,42 @@ def generate_response_from_model(client, user_prompt, verbose: bool = False):
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
     ]
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=messages,
-        tools=available_schemas,
-        temperature=0,
-    )
+    total_prompt_tokens = 0
+    total_completion_tokens = 0
 
-    assistant_message = response.choices[0].message
-    for tool_call in assistant_message.tool_calls or []:
-        result_message = call_function(tool_call, verbose=verbose)
-        if not result_message.get("content"):
-            raise RuntimeError("Function call returned an empty tool response")
-        if verbose:
-            print(f"-> {result_message['content']}")
+    for _ in range(20):
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=messages,
+            tools=available_schemas,
+            temperature=0,
+        )
 
-    if response.usage is None:
-        raise RuntimeError("Failed API request | None value for response.usage")
+        message = response.choices[0].message
+        messages.append(message)
 
-    return (
-        assistant_message.content,
-        response.usage.prompt_tokens,
-        response.usage.completion_tokens,
-    )
+        if response.usage is None:
+            raise RuntimeError("Failed API request | None value for response.usage")
+
+        total_prompt_tokens += response.usage.prompt_tokens
+        total_completion_tokens += response.usage.completion_tokens
+
+        for tool_call in message.tool_calls or []:
+            result_message = call_function(tool_call, verbose=verbose)
+            if not result_message.get("content"):
+                raise RuntimeError("Function call returned an empty tool response")
+            messages.append(result_message)
+            if verbose:
+                print(f"-> {result_message['content']}")
+
+        if not message.tool_calls:
+            return (
+                message.content,
+                total_prompt_tokens,
+                total_completion_tokens,
+            )
+
+    raise RuntimeError("Model did not complete the task within 20 turns")
 
 
 def create_client(api_key):
@@ -69,19 +85,23 @@ def main():
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
 
-    # Path to assure everything is going fine. If anything happens, this will catch it up - it should, at least
-    api_key = get_api_key()
-    client = create_client(api_key)
-    answer, prompt_tokens, response_tokens = generate_response_from_model(
-        client,
-        user_prompt=args.user_prompt,
-        verbose=args.verbose,
-    )
+    try:
+        api_key = get_api_key()
+        client = create_client(api_key)
+        answer, prompt_tokens, response_tokens = generate_response_from_model(
+            client,
+            user_prompt=args.user_prompt,
+            verbose=args.verbose,
+        )
+    except RuntimeError as err:
+        print(f"Error: {err}", file=sys.stderr)
+        return 1
 
     print(answer)
     print(f"Prompt tokens: {prompt_tokens}")
     print(f"Response tokens: {response_tokens}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
