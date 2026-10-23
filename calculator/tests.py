@@ -35,20 +35,16 @@ class TestCalculator(unittest.TestCase):
         self.assertIsNone(result)
 
     def test_invalid_operator(self) -> None:
-        with self.assertRaises(ValueError):
-            self.calculator.evaluate("$ 3 5")
+        for expression in ("$ 3 5", "3 + * 4"):
+            with self.subTest(expression=expression):
+                with self.assertRaises(ValueError):
+                    self.calculator.evaluate(expression)
 
     def test_not_enough_operands(self) -> None:
-        with self.assertRaises(ValueError):
-            self.calculator.evaluate("+ 3")
-
-    def test_adjacent_operands(self) -> None:
-        with self.assertRaises(ValueError):
-            self.calculator.evaluate("3 4 +")
-
-    def test_adjacent_operators(self) -> None:
-        with self.assertRaises(ValueError):
-            self.calculator.evaluate("3 + * 4")
+        for expression in ("+ 3", "3 4 +"):
+            with self.subTest(expression=expression):
+                with self.assertRaises(ValueError):
+                    self.calculator.evaluate(expression)
 
 
 if __name__ == "__main__":

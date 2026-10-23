@@ -3,7 +3,7 @@ import stat
 
 from config import MAX_CHARS
 
-def write_to_file(working_directory: str, file_path: str, content: str) -> str:
+def write_file(working_directory: str, file_path: str, content: str) -> str:
     directory_fd = None
     file_fd = None
     try:
@@ -68,10 +68,10 @@ def write_to_file(working_directory: str, file_path: str, content: str) -> str:
             os.close(directory_fd)
 
 
-schema_write_to_file = {
+schema_write_file = {
     "type": "function",
     "function": {
-        "name": "write_to_file",
+        "name": "write_file",
         "description": "Writes content to a file at a path relative to the working directory.",
         "parameters": {
             "type": "object",

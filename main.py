@@ -1,5 +1,4 @@
 import argparse
-import json
 import os
 
 
@@ -11,7 +10,7 @@ from openai import OpenAI
 
 
 from prompts import system_prompt
-from call_function import available_schemas
+from call_function import available_schemas, call_function
 
 
 # Defaults from OpenAI
@@ -24,7 +23,7 @@ def get_api_key():
     return os.environ.get("OPENROUTER_API_KEY")
 
 
-def generate_response_from_model(client, user_prompt):
+def generate_response_from_model(client, user_prompt, verbose: bool = False):
     messages: list = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
@@ -38,8 +37,11 @@ def generate_response_from_model(client, user_prompt):
 
     assistant_message = response.choices[0].message
     for tool_call in assistant_message.tool_calls or []:
-        function_args = json.loads(tool_call.function.arguments or "{}")
-        print(f"Calling function: {tool_call.function.name}({function_args})")
+        result_message = call_function(tool_call, verbose=verbose)
+        if not result_message.get("content"):
+            raise RuntimeError("Function call returned an empty tool response")
+        if verbose:
+            print(f"-> {result_message['content']}")
 
     if response.usage is None:
         raise RuntimeError("Failed API request | None value for response.usage")
@@ -72,8 +74,9 @@ def main():
     client = create_client(api_key)
     answer, prompt_tokens, response_tokens = generate_response_from_model(
         client,
-        user_prompt=args.user_prompt
-        )
+        user_prompt=args.user_prompt,
+        verbose=args.verbose,
+    )
 
     print(answer)
     print(f"Prompt tokens: {prompt_tokens}")
